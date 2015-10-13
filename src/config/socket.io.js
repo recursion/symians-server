@@ -59,7 +59,7 @@ export default function (app){
   // after the initial connection.
   setInterval(()=> {
     io.to('world-updates').emit('world-update', world);
-  }, 2000);
+  }, 10000);
 
   // start listening
   httpServer.listen(port, ()=> {
