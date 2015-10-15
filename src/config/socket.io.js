@@ -1,7 +1,7 @@
 import http from 'http'
 import socketio from 'socket.io'
 import socketServices from '../sockets'
-import Zone from '../zone.js'
+import {Zone} from 'symian-lib'
 
 const port = process.env.PORT || 3000;
 const world = new Zone(128, 128);
