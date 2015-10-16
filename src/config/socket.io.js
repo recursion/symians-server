@@ -1,6 +1,10 @@
 import http from 'http'
 import socketio from 'socket.io'
 import socketServices from '../sockets'
+import db from './mongoose'
+import Zone from '../zone'
+
+let world;
 
 const port = process.env.PORT || 3000;
 
@@ -9,12 +13,21 @@ const port = process.env.PORT || 3000;
  * @param {ExpressInstance} app - The express server instance
  */
 export default function (app){
+  db.connect();
+
+  Zone.find({})
+    .populate('locations')
+    .exec((err, zone)=>{
+      world = zone[0];
+      console.log(zone[0].locations.length);
+    });
 
   // create an http server wrapped around express
   const httpServer = http.Server(app);
 
   // create a socket.io server wrapped around the httpServer
   const io = socketio(httpServer);
+
 
   // socket event handlers
   io.on('connection', (socket)=> {
@@ -56,7 +69,6 @@ export default function (app){
   // we shouldnt really ever need to send the entire map
   // after the initial connection.
   setInterval(()=> {
-    let world = [];
     io.to('world-updates').emit('world-update', world);
   }, 10000);
 
