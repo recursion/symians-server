@@ -1,10 +1,8 @@
 import http from 'http'
 import socketio from 'socket.io'
 import socketServices from '../sockets'
-import {Zone} from 'symian-lib'
 
 const port = process.env.PORT || 3000;
-const world = new Zone(128, 128);
 
 /**
  * setup the socket.io server
@@ -58,6 +56,7 @@ export default function (app){
   // we shouldnt really ever need to send the entire map
   // after the initial connection.
   setInterval(()=> {
+    let world = [];
     io.to('world-updates').emit('world-update', world);
   }, 10000);
 
