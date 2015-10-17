@@ -1,8 +1,7 @@
 import http from 'http'
 import socketio from 'socket.io'
 import socketServices from '../sockets'
-import db from './mongoose'
-import Zone from '../zone'
+import winston from 'winston'
 
 let world;
 
@@ -13,14 +12,6 @@ const port = process.env.PORT || 3000;
  * @param {ExpressInstance} app - The express server instance
  */
 export default function (app){
-  db.connect();
-
-  Zone.find({})
-    .populate('locations')
-    .exec((err, zone)=>{
-      world = zone[0];
-      console.log(zone[0].locations.length);
-    });
 
   // create an http server wrapped around express
   const httpServer = http.Server(app);
@@ -32,7 +23,7 @@ export default function (app){
   // socket event handlers
   io.on('connection', (socket)=> {
 
-    console.log('A user connected');
+    winston.info('A user connected');
 
     /**
      * send the full world for the initial connection
@@ -59,7 +50,7 @@ export default function (app){
     }
 
     socket.on('disconnect', ()=> {
-      console.log('A user disconnected');
+      winston.info('A user disconnected');
     });
 
   });
@@ -74,7 +65,7 @@ export default function (app){
 
   // start listening
   httpServer.listen(port, ()=> {
-    console.log('listening on *:' + port);
+    winston.info('listening on *:' + port);
   });
 
   // return the socket server
