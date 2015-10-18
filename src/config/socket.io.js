@@ -1,38 +1,10 @@
 import http from 'http'
 import socketio from 'socket.io'
-import socketServices from '../sockets'
+import socketServices from '../socketHandlers'
 import winston from 'winston'
-import {loader} from 'symians-models'
+import {setup as setupZone} from '../zones'
+import updatesHandler from '../updatesHandler'
 
-const world = {};
-world.zone = {};
-
-let ready = false;
-let length = 0;
-
-/**
- * copy data from one object
- *  onto our world.zone
- */
-function setZone(z){
-  world.zone.height = z.height;
-  world.zone.width = z.width;
-  world.zone.locations = z.locations.slice();
-}
-
-/**
- * inflate the existing zone
- */
-loader.inflateZone(1)
-  .then(function(z){
-    console.log(z.locations.length);
-    length = z.locations.length;
-    setZone(z);
-    ready = true;
-  })
-  .catch((err)=>{
-    throw new Error(err);
-  });
 
 const port = process.env.PORT || 3000;
 
@@ -48,24 +20,19 @@ export default function (app){
   // create a socket.io server wrapped around the httpServer
   const io = socketio(httpServer);
 
+  updatesHandler(io);
+
   // socket event handlers
   io.on('connection', (socket)=> {
 
     winston.info('A user connected');
 
     /**
-     * send the full world for the initial connection
+     * send the zone for the initial connection
+     * @todo: determine which zone this socket
+     * should connect to.
      */
-    socket.emit('zone-init', world.zone);
-
-    /**
-     * once the client has loaded the world
-     * subscribe them to updates
-     */
-    socket.on('zone-loaded', ()=> {
-      // change this to join the zoneID channel
-      socket.join('zone-updates');
-    });
+    setupZone(socket);
 
     /**
      * iterate through all socket services
