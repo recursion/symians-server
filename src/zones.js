@@ -11,10 +11,10 @@ let zone;
  *
  */
 function getZone(zoneId=1, socket){
+  console.log('Getting zone info');
   loader.inflateZone(zoneId)
     .then((z)=>{
       zone = z;
-      console.log(z.mobs.length);
       setup(socket);
     })
     .catch((err)=>{
@@ -33,5 +33,6 @@ export function setup(socket){
     socket.emit('zone-init', zone);
   } else {
     getZone(1, socket);
+
   }
 }

@@ -26,13 +26,14 @@ export default function (app){
   io.on('connection', (socket)=> {
 
     winston.info('A user connected');
+    socket.join('zone:1');
 
     /**
      * send the zone for the initial connection
      * @todo: determine which zone this socket
      * should connect to.
      */
-    setupZone(socket);
+    //setupZone(socket);
 
     /**
      * iterate through all socket services
